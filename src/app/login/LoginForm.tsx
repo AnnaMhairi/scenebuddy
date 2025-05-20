@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function LoginForm() {
   const supabase = createClientComponentClient()
@@ -58,6 +59,15 @@ export default function LoginForm() {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Logging in...' : 'Log In'}
       </Button>
+
+      <div className="text-sm text-center space-y-1">
+        <Link href="/signup" className="text-blue-600 hover:underline block">
+          Don’t have an account? Register
+        </Link>
+        <Link href="/forgot-password" className="text-blue-600 hover:underline block">
+          Forgot your password?
+        </Link>
+      </div>
     </form>
   )
 }

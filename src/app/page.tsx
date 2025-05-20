@@ -3,10 +3,10 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
       <h1 className="text-4xl md:text-5xl font-bold mb-4">
-        SceneBuddy 🎬
+        Audition Tracker 🎬
       </h1>
       <p className="text-lg text-gray-600 mb-8 max-w-xl">
-        Your all-in-one tool for actors: upload audition scripts, rehearse with line highlighting, and manage your self-tape prep — all in one place.
+        Track and analyze your auditions!
       </p>
       <a
         href="/login"

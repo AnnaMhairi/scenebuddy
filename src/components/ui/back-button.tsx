@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
-const HIDDEN_PATHS = ['/', '/login', '/register', '/dashboard']
+const HIDDEN_PATHS = ['/', '/login', '/signup', '/dashboard']
 
 export function BackButton() {
     const pathname = usePathname()
