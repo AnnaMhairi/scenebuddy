@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -10,7 +9,13 @@ type Audition = Database['public']['Tables']['auditions']['Row']
 
 export default function DashboardPage() {
   const [auditions, setAuditions] = useState<Audition[]>([])
+  const [filteredAuditions, setFilteredAuditions] = useState<Audition[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Filters state
+  const [agentFilter, setAgentFilter] = useState('')
+  const [castingOfficeFilter, setCastingOfficeFilter] = useState('')
+
   const supabase = createClientComponentClient<Database>()
   const router = useRouter()
 
@@ -35,6 +40,7 @@ export default function DashboardPage() {
         console.error('Error fetching auditions:', error)
       } else {
         setAuditions(data || [])
+        setFilteredAuditions(data || [])
       }
 
       setLoading(false)
@@ -43,28 +49,59 @@ export default function DashboardPage() {
     fetchAuditions()
   }, [supabase, router])
 
-  if (loading) return <p>Loading...</p>
+  // Filter auditions whenever filters or auditions change
+  useEffect(() => {
+    let filtered = auditions
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this audition?')) {
-      return
+    if (agentFilter) {
+      filtered = filtered.filter((a) => a.agent === agentFilter)
     }
-  
-    const { error } = await supabase.from('auditions').delete().eq('id', id)
-  
-    if (error) {
-      console.error('Error deleting audition:', error)
-      alert('Failed to delete audition, please try again.')
-      return
+    if (castingOfficeFilter) {
+      filtered = filtered.filter((a) => a.casting_office === castingOfficeFilter)
     }
-  
-    // Remove deleted audition from state to update UI
-    setAuditions((prev) => prev.filter((a) => a.id !== id))
-  }
+
+    setFilteredAuditions(filtered)
+  }, [agentFilter, castingOfficeFilter, auditions])
+
+  // Get unique agents and casting offices for dropdown options
+  const agents = Array.from(new Set(auditions.map((a) => a.agent).filter(Boolean)))
+  const castingOffices = Array.from(new Set(auditions.map((a) => a.casting_office).filter(Boolean)))
+
+  if (loading) return <p>Loading...</p>
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">My Auditions</h1>
+
+      <div className="mb-4 flex gap-4">
+        {/* Agent filter */}
+        <select
+          value={agentFilter}
+          onChange={(e) => setAgentFilter(e.target.value)}
+          className="border text-gray-600 rounded px-3 py-1"
+        >
+          <option value="">All Agents</option>
+          {agents.map((agent) => (
+            <option key={agent} value={agent}>
+              {agent}
+            </option>
+          ))}
+        </select>
+
+        {/* Casting Office filter */}
+        <select
+          value={castingOfficeFilter}
+          onChange={(e) => setCastingOfficeFilter(e.target.value)}
+          className="border text-gray-600 rounded px-3 py-1"
+        >
+          <option value="">All Casting Offices</option>
+          {castingOffices.map((office) => (
+            <option key={office} value={office}>
+              {office}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded mb-6"
@@ -74,28 +111,16 @@ export default function DashboardPage() {
       </button>
 
       <ul className="space-y-4">
-        {auditions.map((audition) => (
+        {filteredAuditions.map((audition) => (
           <li
             key={audition.id}
             className="border p-4 rounded shadow hover:bg-gray-50"
           >
-            <h2 className="text-lg text-gray-600 font-semibold">{audition.role} - {audition.project}</h2>
-            <p className="text-sm text-gray-600">Casting Director: {audition.casting_office}</p>
-            <p className="text-sm text-gray-600">Agent: {audition.agent}</p>
+            <h2 className="text-lg font-semibold">{audition.role} - {audition.project}</h2>
             <p className="text-sm text-gray-600">Due: {audition.due_date}</p>
-            <p className="text-sm mt-2 text-gray-600">Notes:{audition.notes}</p>
-            <button
-              onClick={() => router.push(`/auditions/${audition.id}/edit`)}
-                className="text-blue-600 underline"
-            >
-                Edit
-            </button>
-            <button
-                className="text-red-600 underline"
-                onClick={() => handleDelete(audition.id)}
-            >
-                Delete
-            </button>
+            <p className="text-sm">Agent: {audition.agent || 'N/A'}</p>
+            <p className="text-sm">Casting Office: {audition.casting_office || 'N/A'}</p>
+            <p className="text-sm mt-2">{audition.notes}</p>
           </li>
         ))}
       </ul>
