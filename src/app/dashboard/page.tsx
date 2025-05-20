@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '../../types/supabase'
 import { useRouter } from 'next/navigation'
+import MainLayout from '@/components/layout/main-layout' 
 
 type Audition = Database['public']['Tables']['auditions']['Row']
 
@@ -12,7 +13,6 @@ export default function DashboardPage() {
   const [filteredAuditions, setFilteredAuditions] = useState<Audition[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Filters state
   const [agentFilter, setAgentFilter] = useState('')
   const [castingOfficeFilter, setCastingOfficeFilter] = useState('')
 
@@ -49,7 +49,6 @@ export default function DashboardPage() {
     fetchAuditions()
   }, [supabase, router])
 
-  // Filter auditions whenever filters or auditions change
   useEffect(() => {
     let filtered = auditions
 
@@ -63,18 +62,16 @@ export default function DashboardPage() {
     setFilteredAuditions(filtered)
   }, [agentFilter, castingOfficeFilter, auditions])
 
-  // Get unique agents and casting offices for dropdown options
   const agents = Array.from(new Set(auditions.map((a) => a.agent).filter(Boolean)))
   const castingOffices = Array.from(new Set(auditions.map((a) => a.casting_office).filter(Boolean)))
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <MainLayout><p>Loading...</p></MainLayout>
 
   return (
-    <div className="p-6">
+    <MainLayout>
       <h1 className="text-2xl font-bold mb-4">My Auditions</h1>
 
       <div className="mb-4 flex gap-4">
-        {/* Agent filter */}
         <select
           value={agentFilter}
           onChange={(e) => setAgentFilter(e.target.value)}
@@ -82,13 +79,10 @@ export default function DashboardPage() {
         >
           <option value="">All Agents</option>
           {agents.map((agent) => (
-            <option key={agent} value={agent}>
-              {agent}
-            </option>
+            <option key={agent} value={agent}>{agent}</option>
           ))}
         </select>
 
-        {/* Casting Office filter */}
         <select
           value={castingOfficeFilter}
           onChange={(e) => setCastingOfficeFilter(e.target.value)}
@@ -96,9 +90,7 @@ export default function DashboardPage() {
         >
           <option value="">All Casting Offices</option>
           {castingOffices.map((office) => (
-            <option key={office} value={office}>
-              {office}
-            </option>
+            <option key={office} value={office}>{office}</option>
           ))}
         </select>
       </div>
@@ -112,10 +104,7 @@ export default function DashboardPage() {
 
       <ul className="space-y-4">
         {filteredAuditions.map((audition) => (
-          <li
-            key={audition.id}
-            className="border p-4 rounded shadow hover:bg-gray-50"
-          >
+          <li key={audition.id} className="border p-4 rounded shadow hover:bg-gray-50">
             <h2 className="text-lg font-semibold">{audition.role} - {audition.project}</h2>
             <p className="text-sm text-gray-600">Due: {audition.due_date}</p>
             <p className="text-sm">Agent: {audition.agent || 'N/A'}</p>
@@ -124,6 +113,6 @@ export default function DashboardPage() {
           </li>
         ))}
       </ul>
-    </div>
+    </MainLayout>
   )
 }

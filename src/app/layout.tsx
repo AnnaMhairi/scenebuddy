@@ -1,27 +1,17 @@
 // src/app/layout.tsx
-import '../styles/globals.css';
-import { ReactNode } from 'react';
-import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import '../styles/globals.css'
+import { Inter } from 'next/font/google'
+import { ReactNode } from 'react'
+import Navbar from '@/components/layout/Navbar'
 
-export default async function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const supabase = createPagesServerClient({ cookies });
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+const inter = Inter({ subsets: ['latin'] })
 
-  // You can optionally pass session to context or props here
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        {/* You could conditionally render nav/header here */}
-        {children}
+      <body className={inter.className}>
+          {children}
       </body>
     </html>
-  );
+  )
 }
